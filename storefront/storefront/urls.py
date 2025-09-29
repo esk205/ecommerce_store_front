@@ -19,6 +19,6 @@ from . import views
 from .views import store
 
 urlpatterns = [
-    path('', views.index, name='store'),
-    path('templates/store.html', views.store, name='store'),
+    path("", views.home, name="home"),     # homepage
+    path("store/", views.store, name="store"),  # store page
 ]
