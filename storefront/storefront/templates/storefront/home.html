@@ -2,11 +2,55 @@
 
 {% block content %}
 
+
+
+<style>
+.shop-btn {
+  background: #ffd700;
+  color:  black;
+  padding: 0.8rem 1.5rem;
+  font-weight: bold;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.shop-btn:hover {
+  background:  white; /* swap background */
+  color:green;      /* swap text color */
+}
+
+.fancy-btn {
+  background: linear-gradient(135deg, #ffd700, #ffae00);
+  color: #2a2a72;
+  padding: 0.8rem 1.6rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+}
+
+.fancy-btn:hover {
+  background: linear-gradient(135deg, #2a2a72, #1e1e60);
+  color: #ffd700;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+
+.fancy-btn:active {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+</style>
+
 <!-- Hero Section -->
 <section style="text-align:center; padding:3rem 1rem; background:linear-gradient(135deg, #2a2a72, #009ffd); color:white; border-radius:12px; margin-bottom:2rem;">
     <h2 style="font-size:2.5rem; margin-bottom:1rem;">Welcome to My Storefront</h2>
     <p style="font-size:1.2rem; margin-bottom:1.5rem;">Shop the latest products at unbeatable prices!</p>
-    <a href="store" style="background:#ffd700; color:#2a2a72; padding:0.8rem 1.5rem; font-weight:bold; border-radius:6px; text-decoration:none; transition:0.3s;">Shop Now</a>
+    <a href="store" class="fancy-btn">Shop Now</a>
 </section>
 
 <!-- Featured Products -->
@@ -25,61 +69,71 @@
             <img src="https://via.placeholder.com/250" alt="Wireless Headphones">
             <h3>Wireless Headphones</h3>
             <p>$99.99</p>
-            <button>Add to Cart</button>
+            <button class="fancy-btn">Add to Cart</button>
+
         </div>
         <div class="product-card" style="min-width:220px; flex:0 0 auto;">
             <img src="https://via.placeholder.com/250" alt="Smart Watch">
             <h3>Smart Watch</h3>
             <p>$149.99</p>
-            <button>Add to Cart</button>
+            <button class="fancy-btn">Add to Cart</button>
+
         </div>
         <div class="product-card" style="min-width:220px; flex:0 0 auto;">
             <img src="https://via.placeholder.com/250" alt="Gaming Mouse">
             <h3>Gaming Mouse</h3>
             <p>$59.99</p>
-            <button>Add to Cart</button>
+           <button class="fancy-btn">Add to Cart</button>
+
         </div>
         <div class="product-card" style="min-width:220px; flex:0 0 auto;">
             <img src="https://via.placeholder.com/250" alt="Bluetooth Speaker">
             <h3>Bluetooth Speaker</h3>
             <p>$79.99</p>
-            <button>Add to Cart</button>
+            <button class="fancy-btn">Add to Cart</button>
+
         </div>
         <div class="product-card" style="min-width:220px; flex:0 0 auto;">
             <img src="https://via.placeholder.com/250" alt="VR Headset">
             <h3>VR Headset</h3>
             <p>$299.99</p>
-            <button>Add to Cart</button>
+           <button class="fancy-btn">Add to Cart</button>
+
         </div>
          <div class="product-card" style="min-width:220px; flex:0 0 auto;">
             <img src="https://via.placeholder.com/250" alt="Wireless Headphones">
             <h3>Wireless Headphones</h3>
             <p>$99.99</p>
-            <button>Add to Cart</button>
+            <button class="fancy-btn">Add to Cart</button>
+
         </div>
         <div class="product-card" style="min-width:220px; flex:0 0 auto;">
             <img src="https://via.placeholder.com/250" alt="Smart Watch">
             <h3>Smart Watch</h3>
             <p>$149.99</p>
-            <button>Add to Cart</button>
+            <button class="fancy-btn">Add to Cart</button>
+
         </div>
         <div class="product-card" style="min-width:220px; flex:0 0 auto;">
             <img src="https://via.placeholder.com/250" alt="Gaming Mouse">
             <h3>Gaming Mouse</h3>
             <p>$59.99</p>
-            <button>Add to Cart</button>
+            <button class="fancy-btn">Add to Cart</button>
+
         </div>
         <div class="product-card" style="min-width:220px; flex:0 0 auto;">
             <img src="https://via.placeholder.com/250" alt="Bluetooth Speaker">
             <h3>Bluetooth Speaker</h3>
             <p>$79.99</p>
-            <button>Add to Cart</button>
+           <button class="fancy-btn">Add to Cart</button>
+
         </div>
         <div class="product-card" style="min-width:220px; flex:0 0 auto;">
             <img src="https://via.placeholder.com/250" alt="VR Headset">
             <h3>VR Headset</h3>
             <p>$299.99</p>
-            <button>Add to Cart</button>
+            <button class="fancy-btn">Add to Cart</button>
+
         </div>
     </div>
 </section>
