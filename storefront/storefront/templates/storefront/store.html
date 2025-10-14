@@ -92,14 +92,28 @@
     .product-card h3 { margin: 0.5rem 0; font-size: 1.2rem; }
     .product-card p { color: #666; font-size: 0.9rem; }
     .product-card button {
-      margin-top: 0.5rem;
-      padding: 0.5rem 1rem;
-      border: none;
-      background: #2a2a72;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.3s ease;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    background: #2a2a72;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  .cart-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: #2a2a72;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  .cart-btn:hover {
+    background: #ffd700;
+    color: #2a2a72;
+    text-decoration: underline;
     }
     .product-card button:hover {
       background: #ffd700;
@@ -116,6 +130,22 @@
     <a href="/store">Store</a>
   </nav>
 </header>
+
+<!-- Cart Summary -->
+<div id="cart-summary" style="position:fixed;top:20px;right:30px;z-index:1000;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);padding:10px 20px;">
+  <span>🛒 Cart: <span id="cart-count">0</span> items</span>
+  <button onclick="showCartModal()" class="cart-btn">View Cart</button>
+</div>
+
+<!-- Cart Modal -->
+<div id="cart-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);z-index:2000;align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:30px 20px;border-radius:10px;min-width:300px;max-width:90vw;">
+    <h2>Your Cart</h2>
+    <ul id="cart-items" style="list-style:none;padding:0;"></ul>
+    <p id="cart-total" style="font-weight:bold;"></p>
+    <button onclick="hideCartModal()" style="margin-top:10px;padding:5px 15px;border:none;background:#2a2a72;color:#fff;border-radius:5px;cursor:pointer;">Close</button>
+  </div>
+</div>
 
 <main>
   {% block content %}
@@ -189,6 +219,58 @@
 
   categoryFilter.addEventListener('change', filterProducts);
   priceFilter.addEventListener('change', filterProducts);
+
+  // --- Shopping Cart Logic ---
+  let cart = [];
+
+  function updateCartSummary() {
+    document.getElementById('cart-count').textContent = cart.reduce((sum, item) => sum + item.qty, 0);
+  }
+
+  function addToCart(productName, productPrice) {
+    const existing = cart.find(item => item.name === productName);
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({ name: productName, price: parseFloat(productPrice.replace('$','')), qty: 1 });
+    }
+    updateCartSummary();
+  }
+
+  function showCartModal() {
+    const modal = document.getElementById('cart-modal');
+    const itemsList = document.getElementById('cart-items');
+    itemsList.innerHTML = '';
+    let total = 0;
+    cart.forEach(item => {
+      total += item.price * item.qty;
+      const li = document.createElement('li');
+      li.innerHTML = `${item.name} - $${item.price.toFixed(2)} x ${item.qty} <button onclick="removeFromCart('${item.name}')" style="margin-left:10px;padding:2px 8px;border:none;background:#ffd700;color:#2a2a72;border-radius:5px;cursor:pointer;">Remove</button>`;
+      itemsList.appendChild(li);
+    });
+    document.getElementById('cart-total').textContent = 'Total: $' + total.toFixed(2);
+    modal.style.display = 'flex';
+  }
+
+  function hideCartModal() {
+    document.getElementById('cart-modal').style.display = 'none';
+  }
+
+  function removeFromCart(productName) {
+    cart = cart.filter(item => item.name !== productName);
+    updateCartSummary();
+    showCartModal();
+  }
+
+  // Attach add-to-cart to product buttons
+  document.querySelectorAll('.product-card button').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const card = this.closest('.product-card');
+      const name = card.querySelector('h3').textContent;
+      const price = card.querySelector('p').textContent;
+      addToCart(name, price);
+    });
+  });
 </script>
 </body>
 </html>
