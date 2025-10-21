@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shopping Cart</title>
+  <style>
+    :root{--accent:#2563eb;--muted:#6b7280;--card:#ffffff;--bg:#f3f4f6}
+    *{box-sizing:border-box}
+    body{font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;line-height:1.4;margin:0;background:var(--bg);color:#111}
+    .container{max-width:980px;margin:40px auto;padding:20px}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+    h1{font-size:1.4rem;margin:0}
+    .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
+
+    .cart-grid{display:grid;grid-template-columns:1fr 340px;gap:20px}
+
+    /* items list */
+    .items{display:flex;flex-direction:column;gap:12px}
+    .item{display:flex;gap:12px;align-items:center;padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(15,23,42,0.02),transparent)}
+    .thumb{width:70px;height:70px;border-radius:8px;background:#eee;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.9rem}
+    .item-info{flex:1}
+    .item-title{font-weight:600}
+    .item-meta{font-size:0.9rem;color:var(--muted)}
+
+    .controls{display:flex;gap:8px;align-items:center}
+    .qty{width:84px;display:flex;align-items:center;border:1px solid #e6e9ee;border-radius:8px;overflow:hidden}
+    .qty button{flex:0 0 36px;border:0;background:transparent;padding:9px 6px;cursor:pointer}
+    .qty input{width:36px;border:0;text-align:center;font-weight:600}
+    .remove{background:transparent;border:0;color:#ef4444;cursor:pointer}
+
+    /* summary */
+    .summary{position:sticky;top:28px}
+    .summary .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #eef2ff}
+    .summary .total{font-size:1.25rem;font-weight:700}
+    .buy-btn{display:inline-block;width:100%;padding:12px 14px;border-radius:10px;background:var(--accent);color:#fff;border:0;font-weight:700;cursor:pointer;margin-top:12px}
+    .buy-btn:active{transform:translateY(1px)}
+
+    .empty{padding:36px;text-align:center;color:var(--muted)}
+
+    @media (max-width:880px){
+      .cart-grid{grid-template-columns:1fr}
+      .summary{position:static}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Your Cart</h1>
+      <div style="color:var(--muted)">3 items</div>
+    </header>
+
+    <div class="cart-grid">
+      <section class="card">
+        <div class="items" id="items-list">
+          <!-- items injected by JS -->
+        </div>
+        <div id="empty-state" class="empty" style="display:none">Your cart is empty.</div>
+      </section>
+
+      <aside class="card summary">
+        <div style="font-size:0.9rem;color:var(--muted);margin-bottom:8px">Order summary</div>
+        <div class="row"><div>Subtotal</div><div id="subtotal">$0.00</div></div>
+        <div class="row"><div>Tax (5%)</div><div id="tax">$0.00</div></div>
+        <div class="row"><div>Shipping</div><div id="shipping">$0.00</div></div>
+        <div class="row" style="border-bottom:0;margin-top:8px"><div class="total">Total</div><div id="total" class="total">$0.00</div></div>
+
+        <button id="buy-now" class="buy-btn">Buy now</button>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // Sample data — replace or populate dynamically as needed
+    const initialItems = [
+      { id: 1, title: 'Wireless Headphones', desc: 'Over-ear, noise-cancelling', price: 129.99, qty: 1 },
+      { id: 2, title: 'Mechanical Keyboard', desc: 'Compact 75% layout', price: 89.5, qty: 1 },
+      { id: 3, title: 'Gaming Mouse', desc: 'High DPI, RGB', price: 49.0, qty: 2 }
+    ];
+
+    const TAX_RATE = 0.05;
+    const FREE_SHIPPING_THRESHOLD = 200;
+    const SHIPPING_FLAT = 9.99;
+
+    let items = JSON.parse(JSON.stringify(initialItems));
+
+    const $itemsList = document.getElementById('items-list');
+    const $subtotal = document.getElementById('subtotal');
+    const $tax = document.getElementById('tax');
+    const $shipping = document.getElementById('shipping');
+    const $total = document.getElementById('total');
+    const $empty = document.getElementById('empty-state');
+    const $buy = document.getElementById('buy-now');
+
+    function formatMoney(n){
+      return new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD'}).format(n);
+    }
+
+    function renderItems(){
+      $itemsList.innerHTML = '';
+      if(items.length === 0){
+        $empty.style.display = 'block';
+        return;
+      } else {
+        $empty.style.display = 'none';
+      }
+
+      items.forEach(item=>{
+        const el = document.createElement('div');
+        el.className = 'item';
+        el.innerHTML = `
+          <div class="thumb">Img</div>
+          <div class="item-info">
+            <div class="item-title">${escapeHtml(item.title)}</div>
+            <div class="item-meta">${escapeHtml(item.desc)}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+            <div style="font-weight:700">${formatMoney(item.price)}</div>
+            <div class="controls">
+              <div class="qty">
+                <button aria-label="decrease" data-id="${item.id}" data-op="dec">-</button>
+                <input type="number" min="1" value="${item.qty}" data-id="${item.id}" style="padding:6px 0" />
+                <button aria-label="increase" data-id="${item.id}" data-op="inc">+</button>
+              </div>
+              <button class="remove" data-id="${item.id}">Remove</button>
+            </div>
+          </div>
+        `;
+
+        $itemsList.appendChild(el);
+      });
+
+      attachControls();
+      recalc();
+    }
+
+    function attachControls(){
+      // quantity buttons
+      $itemsList.querySelectorAll('button[data-op]').forEach(btn=>{
+        btn.onclick = e => {
+          const id = Number(e.currentTarget.dataset.id);
+          const op = e.currentTarget.dataset.op;
+          const it = items.find(x=>x.id===id);
+          if(!it) return;
+          if(op==='inc') it.qty += 1;
+          if(op==='dec' && it.qty>1) it.qty -= 1;
+          renderItems();
+        }
+      });
+
+      // quantity inputs
+      $itemsList.querySelectorAll('input[type=number]').forEach(inp=>{
+        inp.onchange = e => {
+          const id = Number(e.currentTarget.dataset.id);
+          const val = parseInt(e.currentTarget.value) || 1;
+          const it = items.find(x=>x.id===id);
+          if(!it) return;
+          it.qty = Math.max(1, val);
+          recalc();
+        }
+      });
+
+      // remove
+      $itemsList.querySelectorAll('button.remove').forEach(btn=>{
+        btn.onclick = e => {
+          const id = Number(e.currentTarget.dataset.id);
+          items = items.filter(x=>x.id!==id);
+          renderItems();
+        }
+      });
+    }
+
+    function recalc(){
+      const subtotal = items.reduce((s,i)=>s + (i.price * i.qty), 0);
+      const tax = subtotal * TAX_RATE;
+      const shipping = subtotal === 0 ? 0 : (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FLAT);
+      const total = subtotal + tax + shipping;
+
+      $subtotal.textContent = formatMoney(round2(subtotal));
+      $tax.textContent = formatMoney(round2(tax));
+      $shipping.textContent = formatMoney(round2(shipping));
+      $total.textContent = formatMoney(round2(total));
+
+      // update header count
+      document.querySelector('header div').textContent = items.reduce((c,i)=>c + i.qty,0) + ' items';
+    }
+
+    function round2(n){return Math.round(n*100)/100}
+
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[s]);
+    }
+
+    $buy.addEventListener('click', ()=>{
+      if(items.length===0){
+        alert('Your cart is empty.');
+        return;
+      }
+      // Simulate a purchase — replace with real checkout integration
+      const payload = {
+        items: items.map(i=>({id:i.id,title:i.title,price:i.price,qty:i.qty})),
+        subtotal: parseFloat((items.reduce((s,i)=>s + (i.price * i.qty),0)).toFixed(2)),
+        tax: parseFloat((items.reduce((s,i)=>s + (i.price * i.qty),0) * TAX_RATE).toFixed(2)),
+      };
+
+      console.log('Checkout payload:', payload);
+      alert('Thank you! Your purchase was simulated. See console for payload.');
+
+      // clear cart after purchase
+      items = [];
+      renderItems();
+    });
+
+    // initial render
+    renderItems();
+  </script>
+</body>
+</html>
